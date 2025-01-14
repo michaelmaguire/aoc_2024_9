@@ -67,6 +67,9 @@ fn main() {
 
     let mut checksum: i64 = 0;
     for i in 0..disk_drive.len() {
+        if( disk_drive[i] == EMPTY) {
+            continue;
+        }
         checksum += (i as i64) * disk_drive[i];
     }
 
