@@ -160,6 +160,10 @@ mod tests {
     }
 }
 
+fn set_size(mut disk_drive: Vec<Block>, block_index: usize, new_size: i64) {
+    disk_drive[block_index].size = new_size;
+}
+
 fn main() {
     println!("Hello, aoc_2024_9!");
     let file_path = "./src/input.txt";
@@ -194,30 +198,29 @@ fn main() {
     print!("Disk drive: ");
     print_disk_drive_part_2(&disk_drive);
 
-    let mut i = disk_drive.len() - 1;
-    while i > 0 {
-        let block = &disk_drive[i];
+    let mut block_to_move_index = disk_drive.len() - 1;
+    while block_to_move_index > 0 {
+        let block_to_move = &disk_drive[block_to_move_index];
         //print!("Block: {}:{} ", block.id, block.size);
-        if block.id == EMPTY {
-            i -= 1;
+        if block_to_move.id == EMPTY {
+            block_to_move_index -= 1;
             continue;
         }
 
-        for pos in 0..i {
-            let empty_block = &disk_drive[pos];
+        for empty_block_index in 0..block_to_move_index {
+            let empty_block =   &disk_drive[empty_block_index];
             if empty_block.id == EMPTY {
                 //println!("Empty block at position {}: size {}", pos, empty_block.size);
                 // If the block is the same size as the EMPTY slot, just replace it
-                if disk_drive[pos].size == block.size {
-                    disk_drive[pos].id = block.id;
-                    disk_drive.remove(i);
-                    //(&disk_drive);
+                if empty_block.size == block_to_move.size {
+                    disk_drive.swap(block_to_move_index, empty_block_index);
                     break;
-                } else if disk_drive[pos].size > block.size {
-                    let free_space = disk_drive[pos].size;
-                    disk_drive[pos].size = free_space - block.size;
-                    let moving_block = disk_drive.remove(i);
-                    disk_drive.insert(pos, moving_block);
+                } else if empty_block.size > block_to_move.size {
+                    let free_space = empty_block.size;
+                    let mut empty_block_removed = disk_drive.remove(empty_block_index);
+                    empty_block_removed.size -= free_space - block_to_move.size;
+                    disk_drive.insert(empty_block_index, empty_block_removed);
+                    disk_drive.insert(empty_block_index, Block::new(block_to_move.id, block_to_move.size));
                     //print_disk_drive_part_2(&disk_drive);
                     break;
                 } else {
@@ -226,13 +229,12 @@ fn main() {
                 }
             }
         }
-        i -= 1;
+        block_to_move_index -= 1;
     }
 
     print!("Disk drive after compaction: ");
     print_disk_drive_part_2(&disk_drive);
 
-    let mut checksum: i64 = checksum_part_2(disk_drive);
-    println!("Checksum: {}", checksum);
+    println!("Checksum: {}", checksum_part_2(disk_drive));
 
 }
