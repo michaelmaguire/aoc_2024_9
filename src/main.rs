@@ -200,31 +200,29 @@ fn main() {
 
     let mut block_to_move_index = disk_drive.len() - 1;
     while block_to_move_index > 0 {
-        //print!("Block: {}:{} ", block.id, block.size);
-        if disk_drive[block_to_move_index].id == EMPTY {
-            block_to_move_index -= 1;
-            continue;
-        }
-
-        for empty_block_index in 0..block_to_move_index {
-            let empty_block =   &disk_drive[empty_block_index];
-            if disk_drive[empty_block_index].id == EMPTY {
-                //println!("Empty block at position {}: size {}", pos, empty_block.size);
-                // If the block is the same size as the EMPTY slot, just replace it
-                if disk_drive[empty_block_index].size == disk_drive[block_to_move_index].size {
-                    disk_drive.swap(block_to_move_index, empty_block_index);
-                    break;
-                } else if empty_block.size > disk_drive[block_to_move_index].size {
-                    let free_space = empty_block.size;
-                    let mut empty_block_removed = disk_drive.remove(empty_block_index);
-                    empty_block_removed.size -= free_space - disk_drive[block_to_move_index].size;
-                    disk_drive.insert(empty_block_index, empty_block_removed);
-                    disk_drive.insert(empty_block_index, Block::new(disk_drive[block_to_move_index].id, disk_drive[block_to_move_index].size));
-                    //print_disk_drive_part_2(&disk_drive);
-                    break;
-                } else {
-                    // If the EMPTY slot is smaller than the block, continue to the next EMPTY slot
-                    continue;
+        println!("Block: block_to_move_index {}: id {} size {}", block_to_move_index, disk_drive[block_to_move_index].id, disk_drive[block_to_move_index].size);
+        if disk_drive[block_to_move_index].id != EMPTY {
+            for empty_block_index in 0..block_to_move_index {
+                if disk_drive[empty_block_index].id == EMPTY {
+                    let block_to_move_size = disk_drive[block_to_move_index].size;
+                    let empty_block_size = disk_drive[empty_block_index].size;
+                    //println!("Empty block at position {}: size {}", pos, empty_block.size);
+                    // If the block is the same size as the EMPTY slot, just replace it
+                    if disk_drive[empty_block_index].size == block_to_move_size {
+                        disk_drive[empty_block_index].id = disk_drive[block_to_move_index].id;
+                        disk_drive[block_to_move_index].id = EMPTY;
+                        break;
+                    } else if empty_block_size > block_to_move_size {
+                        disk_drive[empty_block_index].size -= block_to_move_size;
+                        disk_drive.insert(empty_block_index, Block::new(disk_drive[block_to_move_index].id, disk_drive[block_to_move_index].size));
+                        block_to_move_index += 1;
+                        disk_drive[block_to_move_index].id = EMPTY;
+                        //print_disk_drive_part_2(&disk_drive);
+                        break;
+                    } else {
+                        // If the EMPTY slot is smaller than the block, continue to the next EMPTY slot
+                        continue;
+                    }
                 }
             }
         }
